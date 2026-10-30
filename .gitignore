@@ -1,0 +1,6 @@
+.cache/
+.vscode/
+build/
+managed_components/
+dependencies.lock
+compile_commands.json
