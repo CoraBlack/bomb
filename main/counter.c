@@ -34,6 +34,10 @@ void counter_task(void *args) {
     vTaskDelete(NULL);
 }
 
+uint8_t get_ticks(void) {
+    return tick_count;
+}
+
 static void counter_callback(void* args) {
     static const char* TAG = "Counter";
     TaskHandlers* handlers = args;

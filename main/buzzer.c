@@ -1,9 +1,11 @@
 #include "buzzer.h"
+#include "counter.h"
 #include "esp_err.h"
 #include "hal/gpio_types.h"
 #include <driver/gpio.h>
 #include <freertos/FreeRTOS.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 void buzzer_init() {
     gpio_config_t buzzer_cfg = {
@@ -20,9 +22,13 @@ void buzzer_init() {
 
 void buzzer_task(void *args) {
     while(1) {
-        vTaskDelay(pdMS_TO_TICKS(800));
+        uint8_t  ticks  = get_ticks(); 
+        uint16_t off_ms = (ticks >= READY_TICKS / 2) ? 800 : (uint16_t)((float)ticks / ((float)READY_TICKS / 2) * 800);
+        uint16_t on_ms  = (ticks >= READY_TICKS / 2) ? 200 : (uint16_t)((float)ticks / ((float)READY_TICKS / 2) * 200);
+
+        vTaskDelay(pdMS_TO_TICKS(off_ms));
         gpio_set_level(BUZZER_PIN, BUZZER_ON);
-        vTaskDelay(pdMS_TO_TICKS(200));
+        vTaskDelay(pdMS_TO_TICKS(on_ms));
         gpio_set_level(BUZZER_PIN, BUZZER_OFF);
     }
 }

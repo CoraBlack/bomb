@@ -1,10 +1,16 @@
 #include "blink.h"
+#include "counter.h"
 #include <esp_err.h>
 #include <driver/gpio.h>
 #include <freertos/FreeRTOS.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 static bool is_led_on = false;
+
+static uint16_t calculate_gap_tick(uint8_t ticks) {
+    return (ticks >= READY_TICKS / 2) ? 500 : (uint16_t)((float)ticks / ((float)READY_TICKS / 2) * 500);
+};
 
 void blink_init() {
     gpio_config_t led_cfg = {
@@ -21,7 +27,8 @@ void blink_init() {
 
 void blink_task(void* args) {
     while(1) {
-        vTaskDelay(pdMS_TO_TICKS(500));
+        uint16_t gap_tick = calculate_gap_tick(get_ticks());
+        vTaskDelay(pdMS_TO_TICKS(gap_tick));
         gpio_set_level(LED_PIN, is_led_on ? LED_OFF : LED_ON);
         is_led_on = !is_led_on;
     }
